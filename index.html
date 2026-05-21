@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>甜心算盘</title>
+
+<!-- PWA Meta -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="甜心算盘">
+<meta name="theme-color" content="#fce4ec">
+<meta name="description" content="超可爱的多功能计算器">
+
+<!-- Manifest -->
+<link rel="manifest" href="manifest.json">
+
+<!-- iOS 图标 -->
+<link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><rect width='180' height='180' rx='36' fill='%23fce4ec'/><text x='90' y='115' text-anchor='middle' font-size='100'>🍬</text></svg>">
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap');
+
+  :root {
+    --pink: #f8a5c2;
+    --pink-light: #fce4ec;
+    --pink-dark: #e91e7b;
+    --lavender: #c4b5fd;
+    --peach: #fbbf8c;
+    --mint: #6ee7b7;
+    --sky: #7dd3fc;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
+  body {
+    background: linear-gradient(165deg, #fef2f6 0%, #fce4ec 30%, #ede9fe 60%, #fff3e0 100%);
+    font-family: 'Nunito', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px 14px;
+    padding-bottom: calc(10px + var(--safe-bottom));
+    position: relative;
+  }
+
+  /* 背景浮动 */
+  .deco {
+    position: fixed;
+    pointer-events: none;
+    z-index: 0;
+    font-size: 1.6rem;
+    opacity: 0.5;
+    animation: fl 9s ease-in-out infinite;
+  }
+  .deco:nth-child(1) { top: 4%; left: 4%; animation-delay: 0s; }
+  .deco:nth-child(2) { top: 6%; right: 5%; animation-delay: 1.6s; }
+  .deco:nth-child(3) { bottom: 12%; left: 3%; animation-delay: 3.2s; }
+  .deco:nth-child(4) { bottom: 8%; right: 4%; animation-delay: 4.8s; }
+  .deco:nth-child(5) { top: 45%; left: 1%; animation-delay: 6.4s; }
+  .deco:nth-child(6) { top: 40%; right: 1%; animation-delay: 2.2s; }
+
+  @keyframes fl {
+    0%, 100% { transform: translate(0,0) rotate(0deg) scale(1); }
+    25% { transform: translate(10px,-14px) rotate(5deg) scale(1.08); }
+    50% { transform: translate(-8px,8px) rotate(-3deg) scale(0.94); }
+    75% { transform: translate(14px,-3px) rotate(7deg) scale(1.04); }
+  }
+
+  .main {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    max-width: 440px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    max-height: 780px;
+  }
+
+  /* 头部 */
+  .head {
+    text-align: center;
+    flex-shrink: 0;
+    margin-bottom: 8px;
+  }
+  .head-ico {
+    font-size: 2.2rem;
+    display: inline-block;
+    animation: bounce 1.6s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    30% { transform: translateY(-10px) scale(1.08); }
+    60% { transform: translateY(0); }
+  }
+  .head-title {
+    font-size: 1.3rem;
+    font-weight: 800;
+    background: linear-gradient(90deg, #f472b6, #a78bfa, #fb923c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 2px;
+  }
+
+  /* 主体 */
+  .body-card {
+    background: rgba(255,255,255,0.72);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    border: 3px solid #fbcfe8;
+    border-radius: 24px;
+    padding: 16px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    box-shadow:
+      0 16px 48px rgba(244,114,182,0.15),
+      0 4px 10px rgba(0,0,0,0.05),
+      inset 0 1px 0 rgba(255,255,255,0.6);
+    overflow: hidden;
+  }
+
+  /* 屏幕 */
+  .screen {
+    background: linear-gradient(180deg, #fff5f7 0%, #fce4ec 100%);
+    border: 2.5px solid #f9a8d4;
+    border-radius: 16px;
+    padding: 10px 14px;
+    flex-shrink: 0;
+    min-height: 70px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    box-shadow: inset 0 2px 8px rgba(244,114,182,0.08);
+    position: relative;
+    margin-bottom: 8px;
+  }
+  .screen::after {
+    content: '';
+    position: absolute;
+    top: 6px; right: 10px;
+    width: 7px; height: 7px;
+    background: #fb7185;
+    border-radius: 50%;
+    animation: blink 2s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .expr-line {
+    text-align: right;
+    color: #f9a8d4;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    min-height: 1.2em;
+    word-break: break-all;
+    line-height: 1.3;
+  }
+  .res-line {
+    text-align: right;
+    color: #db2777;
+    font-size: 1.7rem;
+    font-weight: 800;
+    letter-spacing: 2px;
+    line-height: 1.25;
+    word-break: break-all;
+    transition: font-size 0.2s;
+  }
+  .res-line.sm { font-size: 1.25rem; }
+  .res-line.xs { font-size: 0.95rem; }
+
+  /* 历史 */
+  .hist {
+    background: rgba(252,228,236,0.45);
+    border: 1.5px solid #fbcfe8;
+    border-radius: 12px;
+    flex-shrink: 0;
+    max-height: 90px;
+    overflow-y: auto;
+    display: none;
+    padding: 5px;
+    margin-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .hist.on { display: block; }
+  .hist-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 5px 8px;
+    cursor: pointer;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    color: #be185d;
+    font-weight: 600;
+  }
+  .hist-item:active { background: #fce4ec; }
+  .hist-item .r { color: #a78bfa; margin-left: 8px; }
+
+  /* 模式 */
+  .modes {
+    display: flex;
+    gap: 7px;
+    margin-bottom: 8px;
+    flex-shrink: 0;
+  }
+  .mode-btn {
+    flex: 1;
+    padding: 8px;
+    text-align: center;
+    font-size: 0.68rem;
+    font-weight: 700;
+    color: #c084fc;
+    background: rgba(196,181,253,0.18);
+    border: 2px solid #e9d5ff;
+    border-radius: 30px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: all 0.2s;
+  }
+  .mode-btn:active { transform: scale(0.95); }
+  .mode-btn.on {
+    color: white;
+    border-color: transparent;
+    background: linear-gradient(135deg, #f472b6, #a78bfa);
+    box-shadow: 0 4px 14px rgba(167,139,250,0.3);
+  }
+
+  /* 按钮网格 */
+  .btns {
+    flex: 1;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 5px;
+    align-content: stretch;
+  }
+
+  .btn {
+    font-family: 'Nunito', 'PingFang SC', sans-serif;
+    font-weight: 700;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.14s;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    font-size: 0.78rem;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+  .btn:active {
+    transform: scale(0.88);
+    transition: transform 0.08s;
+  }
+
+  .btn-num {
+    background: linear-gradient(180deg, #fff 0%, #fef2f6 100%);
+    color: #9d174d;
+    border: 2px solid #fce4ec;
+    box-shadow: 0 2px 6px rgba(244,114,182,0.07);
+  }
+  .btn-op {
+    background: linear-gradient(180deg, #ede9fe 0%, #ddd6fe 100%);
+    color: #7c3aed;
+    border: 2px solid #c4b5fd;
+    box-shadow: 0 2px 6px rgba(167,139,250,0.07);
+  }
+  .btn-fn {
+    background: linear-gradient(180deg, #d1fae5 0%, #a7f3d0 100%);
+    color: #047857;
+    border: 2px solid #6ee7b7;
+    font-size: 0.7rem;
+    box-shadow: 0 2px 6px rgba(16,185,129,0.07);
+  }
+  .btn-eq {
+    background: linear-gradient(180deg, #fb7185 0%, #e11d48 100%);
+    color: white;
+    font-size: 1.1rem;
+    box-shadow: 0 4px 12px rgba(244,63,94,0.22);
+  }
+  .btn-clr {
+    background: linear-gradient(180deg, #ffedd5 0%, #fed7aa 100%);
+    color: #c2410c;
+    border: 2px solid #fdba74;
+    box-shadow: 0 2px 6px rgba(249,115,22,0.06);
+  }
+  .btn-mem {
+    background: linear-gradient(180deg, #fff3e0 0%, #ffedd5 100%);
+    color: #ea580c;
+    border: 2px solid #fbbf8c;
+    font-size: 0.63rem;
+    box-shadow: 0 2px 6px rgba(249,115,22,0.04);
+  }
+  .btn-mem.on { background: #fbbf8c; border-color: #ea580c; color: white; }
+
+  /* 安装横幅 */
+  .install-banner {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 99;
+    background: white;
+    border: 2px solid #fbcfe8;
+    border-radius: 18px;
+    padding: 14px 18px;
+    box-shadow: 0 8px 32px rgba(244,114,182,0.25);
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+  }
+  .install-banner.show { display: flex; }
+  .install-banner .icon { font-size: 2.4rem; }
+  .install-banner .txt { flex: 1; }
+  .install-banner .ttl { font-weight: 800; color: #9d174d; font-size: 0.9rem; }
+  .install-banner .sub { color: #a78bfa; font-size: 0.72rem; margin-top: 2px; }
+  .install-banner button {
+    background: linear-gradient(135deg, #f472b6, #a78bfa);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 10px 20px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    white-space: nowrap;
+    box-shadow: 0 4px 12px rgba(244,114,182,0.3);
+  }
+  .install-banner .close-btn {
+    position: absolute;
+    top: 6px; right: 12px;
+    background: none;
+    border: none;
+    color: #c084fc;
+    font-size: 1rem;
+    cursor: pointer;
+    padding: 4px;
+    box-shadow: none;
+  }
+
+  /* iOS 引导 */
+  .ios-guide {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    right: 20px;
+    z-index: 99;
+    background: white;
+    border: 2px solid #fbcfe8;
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 8px 32px rgba(244,114,182,0.25);
+    text-align: center;
+  }
+  .ios-guide.show { display: block; }
+  .ios-guide .ttl { font-weight: 800; color: #9d174d; font-size: 0.9rem; }
+  .ios-guide .step { color: #a78bfa; font-size: 0.72rem; margin-top: 8px; line-height: 1.6; }
+  .ios-guide .arrow { font-size: 1.5rem; margin: 4px 0; }
+
+  /* 粒子 */
+  .spark {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999;
+    animation: sp 0.7s ease-out forwards;
+    font-size: 1.3rem;
+  }
+  @keyframes sp {
+    0% { opacity: 1; transform: translate(0,0) scale(1); }
+    60% { opacity: 0.7; transform: translate(var(--x), var(--y)) scale(1.2); }
+    100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(0.1); }
+  }
+  @keyframes popBounce {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.18); }
+    100% { transform: scale(1); }
+  }
+  .pop { animation: popBounce 0.3s ease; }
+
+  /* 滚动条 */
+  .hist::-webkit-scrollbar { width: 4px; }
+  .hist::-webkit-scrollbar-thumb { background: #f9a8d4; border-radius: 8px; }
+
+  @media (min-width: 500px) {
+    .btn { font-size: 0.85rem; }
+    .btn-fn { font-size: 0.73rem; }
+    .btn-mem { font-size: 0.68rem; }
+    .res-line { font-size: 2rem; }
+    .btns { gap: 7px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="deco">🌸</div><div class="deco">⭐</div><div class="deco">🎀</div>
+<div class="deco">🍰</div><div class="deco">🦄</div><div class="deco">💖</div>
+
+<div class="main">
+  <div class="head">
+    <div class="head-ico">🍬</div>
+    <div class="head-title">甜心算盘</div>
+  </div>
+
+  <div class="body-card">
+    <div class="screen">
+      <div class="expr-line" id="elExp"></div>
+      <div class="res-line" id="elRes">0</div>
+    </div>
+    <div class="hist" id="elHist"></div>
+    <div class="modes">
+      <div class="mode-btn on" data-mode="basic" id="modeBasic">🌸 基础</div>
+      <div class="mode-btn" data-mode="scientific" id="modeSci">🔬 科学</div>
+    </div>
+    <div class="btns" id="elBtns"></div>
+  </div>
+</div>
+
+<!-- 安装横幅 -->
+<div class="install-banner" id="installBanner">
+  <span class="icon">🍬</span>
+  <div class="txt">
+    <div class="ttl">添加到主屏幕</div>
+    <div class="sub">像 APP 一样使用计算器</div>
+  </div>
+  <button id="installBtn">安装</button>
+  <button class="close-btn" id="closeBanner">✕</button>
+</div>
+
+<!-- iOS 引导 -->
+<div class="ios-guide" id="iosGuide">
+  <div class="ttl">📱 添加到主屏幕</div>
+  <div class="step">
+    点击 Safari 底部的<br>
+    <span style="font-size:1.3rem;">📤</span> 分享按钮<br>
+    然后选择<br>
+    <span style="font-size:1.1rem;">➕ 添加到主屏幕</span>
+  </div>
+  <button onclick="document.getElementById('iosGuide').classList.remove('show')"
+    style="margin-top:10px;background:linear-gradient(135deg,#f472b6,#a78bfa);color:white;border:none;border-radius:20px;padding:8px 24px;font-weight:700;font-size:0.8rem;cursor:pointer;">知道了</button>
+</div>
+
+<script>
+// ====== PWA 安装逻辑 ======
+var deferredPrompt = null;
+
+// 检测设备
+var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
+  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+var isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+  navigator.standalone;
+
+// 注册 Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(function() {
+    // 本地打开时 SW 不可用，静默处理
+  });
+}
+
+// 监听安装事件 (Android Chrome)
+window.addEventListener('beforeinstallprompt', function(e) {
+  e.preventDefault();
+  deferredPrompt = e;
+  if (!isStandalone && !isIOS) {
+    document.getElementById('installBanner').classList.add('show');
+  }
+});
+
+// iOS 引导 (非独立模式时显示)
+if (isIOS && !isStandalone) {
+  setTimeout(function() {
+    document.getElementById('iosGuide').classList.add('show');
+  }, 2000);
+}
+
+// 安装按钮
+document.getElementById('installBtn').addEventListener('click', function() {
+  if (deferredPrompt) {
+    deferredPrompt.prompt();
+    deferredPrompt.userChoice.then(function(r) {
+      document.getElementById('installBanner').classList.remove('show');
+      deferredPrompt = null;
+    });
+  }
+});
+
+document.getElementById('closeBanner').addEventListener('click', function() {
+  document.getElementById('installBanner').classList.remove('show');
+});
+
+// 已安装则隐藏
+if (isStandalone) {
+  document.getElementById('installBanner').classList.remove('show');
+  document.getElementById('iosGuide').classList.remove('show');
+}
+
+// ====== 计算器逻辑 ======
+var expr = '';
+var cur = '0';
+var last = null;
+var mem = 0;
+var hasMem = false;
+var hist = [];
+var fresh = false;
+var mode = 'basic';
+var parens = 0;
+
+var elExp = document.getElementById('elExp');
+var elRes = document.getElementById('elRes');
+var elHist = document.getElementById('elHist');
+var elBtns = document.getElementById('elBtns');
+
+var sparkles = ['🌸','✨','🩷','⭐','🎀','💕','🍰','🫧','💖','🧁','🌟','💝'];
+
+function spark(x, y, n) {
+  n = n || 5;
+  for (var i = 0; i < n; i++) {
+    var s = document.createElement('div');
+    s.className = 'spark';
+    s.textContent = sparkles[Math.floor(Math.random() * sparkles.length)];
+    s.style.left = x + 'px';
+    s.style.top = y + 'px';
+    var sx = (Math.random() - 0.5) * 90;
+    var sy = (Math.random() - 0.5) * 90 - 25;
+    s.style.setProperty('--x', sx + 'px');
+    s.style.setProperty('--y', sy + 'px');
+    document.body.appendChild(s);
+    setTimeout(function() { s.remove(); }, 700);
+  }
+}
+
+function popEq() {
+  elRes.classList.remove('pop');
+  void elRes.offsetWidth;
+  elRes.classList.add('pop');
+}
+
+function fm(n) {
+  if (typeof n === 'number') {
+    if (!isFinite(n)) return n > 0 ? '∞' : '-∞';
+    if (Math.abs(n) >= 1e15 || (Math.abs(n) < 1e-10 && n !== 0)) return n.toExponential(8);
+    return parseFloat(n.toPrecision(12)).toString();
+  }
+  return String(n);
+}
+
+function fac(n) {
+  if (n < 0 || n !== Math.floor(n)) return NaN;
+  if (n === 0 || n === 1) return 1;
+  if (n > 170) return Infinity;
+  var r = 1;
+  for (var i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+var mf = {
+  sin: Math.sin, cos: Math.cos, tan: Math.tan,
+  asin: Math.asin, acos: Math.acos, atan: Math.atan,
+  sinh: Math.sinh, cosh: Math.cosh, tanh: Math.tanh,
+  log: Math.log10, ln: Math.log, sqrt: Math.sqrt,
+  exp: Math.exp, abs: Math.abs, floor: Math.floor,
+  ceil: Math.ceil, round: Math.round, factorial: fac
+};
+var mk = Object.keys(mf);
+
+function safeEval(s) {
+  s = s.replace(/×/g, '*').replace(/÷/g, '/')
+       .replace(/π/g, String(Math.PI))
+       .replace(/\be\b(?![xp])/g, String(Math.E))
+       .replace(/√\(/g, 'sqrt(')
+       .replace(/\^/g, '**')
+       .replace(/mod/g, '%');
+  return new Function('"use strict"; var ' + mk.join(',') + ' = this; return (' + s + ');').call(mf);
+}
+
+function calc() {
+  if (!expr) return;
+  try {
+    var r = safeEval(expr);
+    var rs = fm(r);
+    addHist(expr, rs);
+    cur = rs; last = r; expr = ''; fresh = true;
+    popEq();
+  } catch(e) {
+    cur = '呜呜~错啦 😿';
+    setTimeout(function() { cur = last !== null ? fm(last) : '0'; upd(); }, 800);
+  }
+  upd();
+}
+
+function upd() {
+  elExp.textContent = expr || '';
+  var d = cur || '0';
+  elRes.textContent = d;
+  elRes.classList.remove('sm', 'xs');
+  if (d.length > 15) elRes.classList.add('xs');
+  else if (d.length > 10) elRes.classList.add('sm');
+}
+
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+}
+
+function addHist(ex, rs) {
+  hist.unshift({ e: ex, r: rs });
+  if (hist.length > 50) hist.pop();
+  renderHist();
+}
+
+function renderHist() {
+  elHist.innerHTML = hist.map(function(h) {
+    return '<div class="hist-item" onclick="recall(\'' + esc(h.e) + '\',\'' + esc(String(h.r)) + '\')"><span>' + esc(h.e) + '</span><span class="r">= ' + esc(String(h.r)) + '</span></div>';
+  }).join('');
+  elHist.classList.toggle('on', hist.length > 0);
+}
+
+function recall(ex, rs) {
+  expr = ex; cur = rs; last = rs; fresh = false; upd();
+}
+
+// 按钮布局
+var basicBtns = [
+  ['MC', 'MR', 'M+', 'M-', 'C'],
+  ['7', '8', '9', '÷', 'AC'],
+  ['4', '5', '6', '×', '←'],
+  ['1', '2', '3', '-', '%'],
+  ['0', '.', '(', ')', '+'],
+  ['', '', '', '', '='],
+];
+
+var sciBtns = [
+  ['MC', 'MR', 'M+', 'M-', 'C'],
+  ['sin', 'cos', 'tan', 'log', 'AC'],
+  ['ln', '√', '^', 'π', '←'],
+  ['7', '8', '9', '÷', '('],
+  ['4', '5', '6', '×', ')'],
+  ['1', '2', '3', '-', 'exp'],
+  ['0', '.', '!', '+', '='],
+];
+
+function render() {
+  var btns = mode === 'basic' ? basicBtns : sciBtns;
+  elBtns.innerHTML = '';
+  btns.forEach(function(row) {
+    row.forEach(function(lbl) {
+      if (!lbl) { elBtns.appendChild(document.createElement('div')); return; }
+      var b = document.createElement('button');
+      b.textContent = lbl;
+      b.className = 'btn';
+      if (lbl === '=') b.classList.add('btn-eq');
+      else if (['C', 'AC'].indexOf(lbl) >= 0) b.classList.add('btn-clr');
+      else if (['+', '-', '×', '÷', '^', 'mod'].indexOf(lbl) >= 0) b.classList.add('btn-op');
+      else if (['MC', 'MR', 'M+', 'M-'].indexOf(lbl) >= 0) {
+        b.classList.add('btn-mem');
+        if (hasMem && ['MC', 'MR'].indexOf(lbl) >= 0) b.classList.add('on');
+      }
+      else if (['sin', 'cos', 'tan', 'log', 'ln', '√', 'π', '!', 'exp', '%', '←'].indexOf(lbl) >= 0) b.classList.add('btn-fn');
+      else if (/^[0-9.]$/.test(lbl)) b.classList.add('btn-num');
+      else b.classList.add('btn-fn');
+
+      b.addEventListener('click', function(e) {
+        act(lbl);
+        spark(e.clientX, e.clientY);
+      });
+
+      // 防止双击缩放
+      b.addEventListener('touchstart', function(e) { e.preventDefault(); this.click(); });
+
+      elBtns.appendChild(b);
+    });
+  });
+}
+
+function act(lbl) {
+  if (/^[0-9]$/.test(lbl)) {
+    if (fresh) { expr = ''; fresh = false; }
+    expr += lbl; upd(); return;
+  }
+  if (lbl === '.') {
+    if (fresh) { expr = '0'; fresh = false; }
+    var parts = expr.split(/[\+\-\×\÷\^\(\)]/);
+    var p = parts[parts.length - 1];
+    if (p && p.indexOf('.') === -1) expr += '.';
+    else if (!p) expr += '0.';
+    upd(); return;
+  }
+  if (['+', '-', '×', '÷', '^'].indexOf(lbl) >= 0) {
+    if (fresh && last !== null) { expr = fm(last); fresh = false; }
+    expr += lbl; upd(); return;
+  }
+  if (lbl === '=') { calc(); return; }
+  if (lbl === 'C') { expr = ''; cur = '0'; fresh = false; parens = 0; upd(); return; }
+  if (lbl === 'AC') { expr = ''; cur = '0'; last = null; fresh = false; parens = 0; upd(); return; }
+  if (lbl === '←') {
+    if (expr.length > 0) {
+      var rm = expr.slice(-1);
+      if (rm === '(') parens = Math.max(0, parens - 1);
+      if (rm === ')') parens++;
+      expr = expr.slice(0, -1);
+    }
+    fresh = false; upd(); return;
+  }
+  if (lbl === '%') {
+    try { var v = safeEval(expr || '0') / 100; cur = fm(v); last = v; expr = ''; fresh = true; addHist(expr || cur, cur); } catch(e) { cur = '呜呜~错啦 😿'; }
+    upd(); return;
+  }
+  if (lbl === '(') { if (fresh) { expr = ''; fresh = false; } expr += '('; parens++; upd(); return; }
+  if (lbl === ')') { if (parens > 0) { expr += ')'; parens--; upd(); } return; }
+  if (lbl === 'π') { if (fresh) { expr = ''; fresh = false; } expr += 'π'; upd(); return; }
+  if (lbl === '!') { expr += '!'; upd(); return; }
+
+  var fm2 = { sin: 'sin(', cos: 'cos(', tan: 'tan(', log: 'log(', ln: 'ln(', '√': 'sqrt(', exp: 'exp(' };
+  if (lbl in fm2) { if (fresh) { expr = ''; fresh = false; } expr += fm2[lbl]; upd(); return; }
+
+  if (lbl === 'MC') { mem = 0; hasMem = false; render(); }
+  if (lbl === 'MR') { if (hasMem) { if (fresh) { expr = ''; fresh = false; } expr += fm(mem); upd(); } }
+  if (lbl === 'M+') { try { var mv = safeEval(expr || cur); mem += mv; hasMem = true; render(); } catch(e) {} }
+  if (lbl === 'M-') { try { var mv2 = safeEval(expr || cur); mem -= mv2; hasMem = true; render(); } catch(e) {} }
+}
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(function(b) {
+    b.classList.toggle('on', b.dataset.mode === m);
+  });
+  render();
+}
+
+// 模式按钮事件
+document.getElementById('modeBasic').addEventListener('click', function() { setMode('basic'); });
+document.getElementById('modeSci').addEventListener('click', function() { setMode('scientific'); });
+
+// 键盘
+document.addEventListener('keydown', function(e) {
+  var km = {
+    '0':'0','1':'1','2':'2','3':'3','4':'4','5':'5','6':'6','7':'7','8':'8','9':'9',
+    '.':'.', '+':'+', '-':'-', '*':'×', '/':'÷', '^':'^',
+    '(':'(', ')':')',
+    'Enter':'=', '=':'=',
+    'Backspace':'←', 'Delete':'AC',
+    'Escape':'C',
+    '%':'%', '!':'!', 'p':'π'
+  };
+  var lbl = km[e.key];
+  if (lbl) { e.preventDefault(); act(lbl); }
+});
+
+render();
+upd();
+</script>
+</body>
+</html>
