@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fbbf8c"/>
+      <stop offset="30%" stop-color="#fce4ec"/>
+      <stop offset="60%" stop-color="#ede9fe"/>
+      <stop offset="100%" stop-color="#f472b6"/>
+    </linearGradient>
+    <linearGradient id="screen" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#fff5f7"/>
+      <stop offset="100%" stop-color="#fce4ec"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-color="#f472b6" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+
+  <!-- 背景圆角方块 -->
+  <rect width="512" height="512" rx="120" fill="url(#bg)"/>
+
+  <!-- 外边框 -->
+  <rect x="70" y="90" width="372" height="340" rx="48" fill="white" filter="url(#shadow)" opacity="0.95"/>
+
+  <!-- 计算器屏幕 -->
+  <rect x="100" y="125" width="312" height="90" rx="24" fill="url(#screen)" stroke="#f9a8d4" stroke-width="3"/>
+
+  <!-- 屏幕上的数字 -->
+  <text x="370" y="185" text-anchor="end" font-family="Nunito,sans-serif" font-weight="800" font-size="46" fill="#db2777">888</text>
+
+  <!-- 按钮行1 -->
+  <circle cx="145" cy="270" r="28" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2.5"/>
+  <text x="145" y="281" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="22" fill="#7c3aed">+</text>
+
+  <circle cx="256" cy="270" r="28" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2.5"/>
+  <text x="256" y="281" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="22" fill="#7c3aed">−</text>
+
+  <circle cx="367" cy="270" r="28" fill="#ede9fe" stroke="#c4b5fd" stroke-width="2.5"/>
+  <text x="367" y="281" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="22" fill="#7c3aed">×</text>
+
+  <!-- 按钮行2 -->
+  <circle cx="145" cy="345" r="28" fill="#fef2f6" stroke="#f9a8d4" stroke-width="2.5"/>
+  <text x="145" y="356" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="24" fill="#9d174d">3</text>
+
+  <circle cx="256" cy="345" r="28" fill="#fef2f6" stroke="#f9a8d4" stroke-width="2.5"/>
+  <text x="256" y="356" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="24" fill="#9d174d">2</text>
+
+  <circle cx="367" cy="345" r="28" fill="#fef2f6" stroke="#f9a8d4" stroke-width="2.5"/>
+  <text x="367" y="356" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="700" font-size="24" fill="#9d174d">1</text>
+
+  <!-- 等号按钮 -->
+  <rect x="110" y="380" width="83" height="28" rx="14" fill="#fb7185" opacity="0.9"/>
+  <text x="151" y="401" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="20" fill="white">=</text>
+
+  <!-- 顶部装饰 - 小心形 -->
+  <text x="256" y="78" text-anchor="middle" font-size="50">🍬</text>
+</svg>
